@@ -1405,20 +1405,45 @@ MapView=
 
 
 
-React.MapView;var StyleSheet=React.StyleSheet;var Text=React.Text;var TextInput=React.TextInput;var View=React.View;var AppRegistry=React.AppRegistry;
+
+
+React.MapView;var StyleSheet=React.StyleSheet;var Text=React.Text;var TextInput=React.TextInput;var View=React.View;var Image=React.Image;var TouchableHighlight=React.TouchableHighlight;var AppRegistry=React.AppRegistry;
 
 var views={
 MAP:1,
 DETAIL:2};
 
 
-var SanFranshitsco=React.createClass({displayName:'SanFranshitsco',
+var styles={
+map:StyleSheet.create({
+map:{
+height:350},
 
+container:{
+flex:1},
+
+thumbnail:{
+width:53,
+height:81}}),
+
+
+
+detail:StyleSheet.create({
+container:{
+flex:1,
+justifyContent:'center',
+alignItems:'center'}})};
+
+
+
+
+var SanFranshitsco=React.createClass({displayName:'SanFranshitsco',
 watchID:null,
 
 getInitialState:function(){
 return {
-mapHeight:200,
+height:200,
+width:100,
 mapRegion:{
 latitude:0,
 longitude:0,
@@ -1427,7 +1452,7 @@ longitudeDelta:0.25},
 
 annotations:null,
 view:views.MAP,
-image:null};},
+annotation:null};},
 
 
 
@@ -1440,18 +1465,13 @@ default:return this._renderMap();break;}},
 
 componentDidMount:function(){var _this=this;
 this._fetchPoop();
-navigator.geolocation.watchPosition(
+this.watchID = navigator.geolocation.getCurrentPosition(
 function(position){
 var center=Object.assign({},_this.state.mapRegion);var _position$coords=
-
-
 position.coords;var latitude=_position$coords.latitude;var longitude=_position$coords.longitude;
 center.latitude = latitude;
 center.longitude = longitude;
-
-_this.setState({
-mapRegion:center});},
-
+_this.setState({mapRegion:center});},
 function(error){return alert(error.message);},{
 enableHighAccuracy:true,
 timeout:20000,
@@ -1464,24 +1484,29 @@ componentWillUnmount:function(){
 navigator.geolocation.clearWatch(this.watchID);},
 
 
-_renderDetail:function(){
-return (
-React.createElement(View,{
-style:styles.container},
+_renderDetail:function(){var _state=
+this.state;var annotation=_state.annotation;var width=_state.width;var height=_state.height;
 
-React.createElement(Text,null,this.state.image)));},
+return (
+React.createElement(View,{style:styles.detail.container},
+React.createElement(Image,{source:{uri:annotation.image},style:{width:width * .7,height:height * .7}}),
+React.createElement(Text,{style:{marginTop:10}},annotation.title),
+React.createElement(Text,null,annotation.subtitle),
+React.createElement(TouchableHighlight,{
+onPress:this._goBackToMap,
+style:{marginTop:10,backgroundColor:'#000000',borderRadius:5,padding:10}},
+
+React.createElement(Text,{style:{color:'#ffffff'}},'Back to the Glorious Map'))));},
+
 
 
 
 
 _renderMap:function(){
 return (
-React.createElement(View,{
-style:styles.container,
-onLayout:this._onViewLayout},
-
+React.createElement(View,{style:styles.map.container,onLayout:this._onViewLayout},
 React.createElement(MapView,{
-style:[styles.map,{height:this.state.mapHeight}],
+style:[styles.map.map,{height:this.state.height}],
 showsUserLocation:true,
 region:this.state.mapRegion || undefined,
 annotations:this.state.annotations || undefined})));},
@@ -1492,10 +1517,11 @@ annotations:this.state.annotations || undefined})));},
 
 _onCalloutClick:function(id){
 var annotation=this.state.annotations.filter(function(annotation){return annotation.id == id;})[0];
-this.setState({
-image:annotation.image,
-view:views.DETAIL});},
+this.setState({annotation:annotation,view:views.DETAIL});},
 
+
+_goBackToMap:function(){
+this.setState({view:views.MAP});},
 
 
 _fetchPoop:function(){var _this2=this;
@@ -1524,18 +1550,9 @@ done();},
 
 _onViewLayout:function(event){var _event$nativeEvent$layout=
 event.nativeEvent.layout;var width=_event$nativeEvent$layout.width;var height=_event$nativeEvent$layout.height;
-this.setState({
-mapHeight:height});}});
+this.setState({width:width,height:height});}});
 
 
-
-
-var styles=StyleSheet.create({
-map:{
-height:350},
-
-container:{
-flex:1}});
 
 
 
