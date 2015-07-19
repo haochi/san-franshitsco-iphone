@@ -68,7 +68,7 @@ var SanFranshitsco = React.createClass({
 
     componentDidMount: function() {
         this._fetchPoop();
-        this.watchID = navigator.geolocation.watchPosition(
+        this.watchID = navigator.geolocation.getCurrentPosition(
             (position) => {
                 let center = Object.assign({}, this.state.mapRegion);
                 let { latitude, longitude } = position.coords;
